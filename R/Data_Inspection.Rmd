@@ -2,29 +2,105 @@
 title: "Data_Inspection"
 author: "Rodrigo"
 date: "2022-12-23"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r}
+rm(list = ls())
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+library(readr)
+library(tidyverse)
+library(stringr)
+library(reshape2)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+data = read_csv("All_Data.csv")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+hist(data$SEF)
+```
+```{r}
+data = data %>%
+  filter(Qualy > 90)
+```
+
+```{r}
+boxplot(SEF~SAS,data=data, main="SEF vs SAS", 
+   xlab="SAS", ylab="SEF (Hz)", varwidth=TRUE)
+```
+```{r}
+boxplot(BIS~SAS,data=data, main="BIS vs SAS", 
+   xlab="SAS", ylab="BIS")
+```
+```{r}
+boxplot(SR~SAS,data=data, main="SR vs SAS", 
+   xlab="SAS", ylab="SR (%)")
+```
+```{r}
+plot(data$`I Propo`,data$SEF,
+     xlab="Propofol Infusion Rate", ylab="SEF (Hz)")
+```
+```{r}
+boxplot(SEF~`I Propo`,data=data, main="SEF vs Propofol Infusion Rate", 
+   xlab="Propofol Infusion Rate", ylab="SEF (Hz)", varwidth=TRUE)
+```
+```{r}
+boxplot(BIS~`I Propo`,data=data, main="BIS vs Propofol Infusion Rate", 
+   xlab="Propofol Infusion Rate", ylab="BIS", varwidth=TRUE)
+```
+```{r}
+plot(data_2$BIS,data_2$SEF,
+     xlab="BIS", ylab="SEF (Hz)", cex=0.5, col = data_2$Sedation)
+```
+
+
+```{r}
+data_2 %>%
+  filter(Sedation == "Profundo" | Sedation == "Superficial") %>%
+  ggplot(aes(x=BIS,y=SEF,col=Sedation))+geom_point()
+```
+
+```{r}
+hist(data$SEF, freq = FALSE)
+```
+```{r}
+hist(data$Qualy, freq = FALSE)
+```
+We will combine SAS1-2 and SAS3-4
+```{r}
+data_2 = data %>%
+  mutate(Sedation = case_when(SAS == 1 | SAS == 2 ~ "Profundo",
+                             SAS == 3 | SAS == 4 ~ "Superficial"))
+```
+
+```{r}
+boxplot(BIS~Sedation,data=data_2, main="BIS vs Sedation State", 
+   xlab="Estado de sedacion", ylab="BIS", varwidth=TRUE)
+```
+```{r}
+boxplot(SEF~Sedation,data=data_2, main="SEF vs Sedation State", 
+   xlab="Estado de sedacion", ylab="SEF", varwidth=TRUE)
+```
+
+```{r}
+data_3 = data_2 %>%
+  filter(Sedation == "Profundo" | Sedation == "Superficial") %>%
+  rename("Propofol_Infusion" = `I Propo`)
+
+data_3 %>%
+  ggplot(aes(x=as.integer(Propofol_Infusion),y=..density..,col=Sedation, bins = 0.5, position = "dodge")) +
+  geom_histogram() + 
+  scale_color_brewer(palette="Dark2") +
+  theme_minimal()+theme_classic()+theme(legend.position="top")
+
+
+```
+
