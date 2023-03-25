@@ -2,9 +2,9 @@
 % load tables
 
 clear variables; clc;
-addpath(genpath('/Users/rodrigo/Dropbox (Partners HealthCare)/rBIS/Data_Inspection/'));
+addpath(genpath('/Users/rodrigo/Analisis_Gutierrez/'));
 addpath(genpath('/Users/rodrigo/MATLAB_Repository/Close_Loop'));
-cd '/Users/rodrigo/Dropbox (Partners HealthCare)/rBIS/Data_Inspection/';
+cd '/Users/rodrigo/Analisis_Gutierrez/';
 
 %%
 
